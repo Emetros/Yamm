@@ -166,7 +166,6 @@ class SettingsWindow(Adw.Window):
 
     def toggle_setting(self, key, state):
         update_user_config(key, state)
-        load_yaml(self.user_config_dir)
 
     def create_social_button(self, icon_filename, url):
         btn_content = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
