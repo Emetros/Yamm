@@ -14,7 +14,11 @@ from gi.repository import GLib
 def deploy_mod_files(staging_dir: str, dest_dir: str, mod_files: list[str]) -> bool:
     dest_path = Path(dest_dir)
     staging_path = Path(staging_dir)
+    staging_meta_path = os.path.join(staging_path, ".staging.nomm.yaml")
+    staging_meta = load_metadata(staging_meta_path)
+    
     success = True
+    
     user_config_dir = os.path.join(GLib.get_user_data_dir(), 'nomm', 'user_config.yaml')
     user_config = load_yaml(user_config_dir)
 
@@ -40,10 +44,13 @@ def deploy_mod_files(staging_dir: str, dest_dir: str, mod_files: list[str]) -> b
         # Linking files
         if not link_item.exists():
             try:
-                # hardlinks
-                if user_config.get("enable_hardlinks"):
+                # Hardlinks can be enabled from settings and work as long as steam games and mods 
+                # are on the same flatpak's virtual path and has rw permission
+                if staging_meta["settings"].get("enable_hardlinks"):
+                    print(staging_meta["settings"].get("enable_hardlinks"))
                     try:
                         os.link(source_item, link_item)
+                        print(f"Hardlink created")
                     except Exception:
                         print(f"Hard link could not be created, trying to create a symlink instead...")
                         try:
@@ -53,6 +60,7 @@ def deploy_mod_files(staging_dir: str, dest_dir: str, mod_files: list[str]) -> b
                 # symlink
                 else:
                     os.symlink(source_item, link_item)
+                    print(f"Symlink created")
             except Exception as sym_e:
                 print(f"Error creating a Symlink {link_item}: {sym_e}")
                 success = False                
@@ -121,6 +129,15 @@ def is_mod_installed(archive_filename, staging_metadata) -> bool:
             if mod_val.get("archive_name") == archive_filename:
                 return True
     return False
+
+# Refreshs symlinks/hardlinks. This method is gonna be usefull in case someone switch between hardlinks and symlinks
+def refresh_mod_links(staging_dir: str, dest_dir: str, mod_list: list[list[str]]):
+    staging_metadata_path = os.path.join(staging_dir, ".staging.nomm.yaml")
+    
+    for mod in mod_list:
+        remove_mod_files(staging_dir, dest_dir, mod)
+    
+    deploy_all_ordered_mods(staging_dir, dest_dir, staging_metadata_path)
 
 # removes hardlinks and symlinks, in case hardlinks are necessary on some situations
 # dashboard.py (l: 1069)
@@ -285,6 +302,8 @@ def load_metadata(path: str) -> dict:
         data["info"] = {}
     if "index" not in data:
         data["index"] = []
+    if "settings" not in data:
+        data["settings"] = {}
         
     return data
 

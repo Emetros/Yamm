@@ -87,13 +87,6 @@ class SettingsWindow(Adw.Window):
         fullscreen_row.set_active(load_yaml(self.user_config_dir).get('enable_fullscreen', False))
         fullscreen_row.connect("notify::active", lambda row, pspec: self.toggle_setting('enable_fullscreen', row.get_active()))
         general_group.add(fullscreen_row)
-        
-        # Hardlink
-        use_hardlink = Adw.SwitchRow(title=_("Use Hardlinks"))
-        use_hardlink.set_subtitle(_("Improves compatibility for some games"))
-        use_hardlink.set_active(load_yaml(self.user_config_dir).get('enable_hardlinks', False))
-        use_hardlink.connect("notify::active", lambda row, pspec: self.toggle_setting('enable_hardlinks', row.get_active()))
-        general_group.add(use_hardlink)
 
         # --- COMMUNITY SECTION ---
         community_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20, halign=Gtk.Align.CENTER)
