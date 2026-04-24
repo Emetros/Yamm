@@ -15,7 +15,7 @@ class SettingsWindow(Adw.Window):
         self.set_default_size(500, -1)
         self.assets_path = assets_path
 
-        self.user_config_dir = os.path.join(GLib.get_user_config_dir(), "nomm", "user_config.yaml")
+        self.user_config_dir = os.path.join(GLib.get_user_data_dir(), "nomm", "user_config.yaml")
 
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20, margin_top=24, margin_bottom=24, margin_start=24, margin_end=24)
         self.set_content(content)
@@ -83,10 +83,17 @@ class SettingsWindow(Adw.Window):
 
         # Fullscreen
         fullscreen_row = Adw.SwitchRow(title=_("Fullscreen NOMM"))
-        fullscreen_row.set_subtitle(_("App launches in full screen when you select a game"))
+        fullscreen_row.set_subtitle(_("Improves mod compatibility for some games but requires more permissions"))
         fullscreen_row.set_active(load_yaml(self.user_config_dir).get('enable_fullscreen', False))
         fullscreen_row.connect("notify::active", lambda row, pspec: self.toggle_setting('enable_fullscreen', row.get_active()))
         general_group.add(fullscreen_row)
+        
+        # Hardlink
+        use_hardlink = Adw.SwitchRow(title=_("Use Hardlinks"))
+        use_hardlink.set_subtitle(_("Improves compatibility for some games"))
+        use_hardlink.set_active(load_yaml(self.user_config_dir).get('enable_hardlinks', False))
+        use_hardlink.connect("notify::active", lambda row, pspec: self.toggle_setting('enable_hardlinks', row.get_active()))
+        general_group.add(use_hardlink)
 
         # --- COMMUNITY SECTION ---
         community_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=20, halign=Gtk.Align.CENTER)
@@ -159,6 +166,7 @@ class SettingsWindow(Adw.Window):
 
     def toggle_setting(self, key, state):
         update_user_config(key, state)
+        load_yaml(self.user_config_dir)
 
     def create_social_button(self, icon_filename, url):
         btn_content = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)

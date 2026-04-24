@@ -8,12 +8,15 @@ from typing import Any, Callable, Dict, List, Optional
 from datetime import datetime
 
 from core.config import load_yaml, write_yaml
+from gi.repository import GLib
 
 # Dashboard.py/on_mod_toggled + new override for install order
 def deploy_mod_files(staging_dir: str, dest_dir: str, mod_files: list[str]) -> bool:
     dest_path = Path(dest_dir)
     staging_path = Path(staging_dir)
     success = True
+    user_config_dir = os.path.join(GLib.get_user_data_dir(), 'nomm', 'user_config.yaml')
+    user_config = load_yaml(user_config_dir)
 
     for mod_file in mod_files:
         
@@ -37,9 +40,19 @@ def deploy_mod_files(staging_dir: str, dest_dir: str, mod_files: list[str]) -> b
         # Linking files
         if not link_item.exists():
             try:
+                # hardlinks
+                if user_config.get("enable_hardlinks"):
+                    try:
+                        os.link(source_item, link_item)
+                    except Exception:
+                        print(f"Hard link could not be created, trying to create a symlink instead...")
+                        try:
+                            os.symlink(source_item, link_item)
+                        except Exception:
+                            success = False
                 # symlink
-                os.symlink(source_item, link_item)
-                print(f"successfully created a symlink as a fallback for {link_item}")
+                else:
+                    os.symlink(source_item, link_item)
             except Exception as sym_e:
                 print(f"Error creating a Symlink {link_item}: {sym_e}")
                 success = False                
