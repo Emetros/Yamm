@@ -20,7 +20,7 @@ class GameSettingsWindow(Adw.Window):
         # Hardlink
         use_hardlink = Adw.SwitchRow(title=_("Use Hardlinks"))
         use_hardlink.set_subtitle(_("Improves compatibility for some games"))
-        use_hardlink.set_active(load_yaml(staging_meta_path)["settings"].get('enable_hardlinks', False))
+        use_hardlink.set_active(load_metadata(staging_meta_path)["settings"].get('enable_hardlinks', False))
         use_hardlink.connect("notify::active", lambda row, pspec: toggle_setting(self, staging_meta_path, 'enable_hardlinks', row.get_active()))
         general_group.add(use_hardlink)
         
