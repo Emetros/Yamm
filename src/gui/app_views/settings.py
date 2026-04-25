@@ -84,7 +84,7 @@ class SettingsWindow(Adw.Window):
 
         # Fullscreen
         fullscreen_row = Adw.SwitchRow(title=_("Fullscreen NOMM"))
-        fullscreen_row.set_subtitle(_("App launches in full screen when you select a game"))
+        fullscreen_row.set_subtitle(_("Improves mod compatibility for some games but requires more permissions"))
         fullscreen_row.set_active(load_yaml(self.user_config_dir).get('enable_fullscreen', False))
         fullscreen_row.connect("notify::active", lambda row, pspec: self.toggle_setting('enable_fullscreen', row.get_active()))
         general_group.add(fullscreen_row)

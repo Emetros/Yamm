@@ -29,14 +29,21 @@ class ModsTab(Gtk.Box):
         self.mod_search_entry.set_size_request(300, -1) 
         self.mod_search_entry.connect("search-changed", self.on_mod_search_changed)
         action_bar.append(self.mod_search_entry)
-
+        
+        # Configure should allow the user to choose between hardlinks or symlinks
+        settings_btn = Gtk.Button(icon_name="settings-configure-symbolic", css_classes=["flat"])
+        settings_btn.set_halign(Gtk.Align.END); settings_btn.set_hexpand(True)
+        settings_btn.set_cursor_from_name("pointer")
+        settings_btn.connect("clicked", self.on_settings_clicked)
+        action_bar.append(settings_btn)
+        
         folder_btn = Gtk.Button(icon_name="folder-open-symbolic", css_classes=["flat"])
-        folder_btn.set_halign(Gtk.Align.END); folder_btn.set_hexpand(True)
+        folder_btn.set_halign(Gtk.Align.END)
         folder_btn.set_cursor_from_name("pointer")
         folder_btn.connect("clicked", lambda x: webbrowser.open(f"file://{self.dashboard.staging_path}"))
         action_bar.append(folder_btn)
 
-        update_btn = Gtk.Button(icon_name="view-refresh-symbolic", css_classes=["flat"])
+        update_btn = Gtk.Button(icon_name="system-reboot-update-symbolic", css_classes=["flat"])
         update_btn.set_halign(Gtk.Align.END)
         update_btn.set_cursor_from_name("pointer")
         update_btn.connect("clicked", self.check_for_updates)
@@ -337,3 +344,8 @@ class ModsTab(Gtk.Box):
             btn.set_sensitive(True)
 
         check_for_mod_updates_async(staging_metadata, self.dashboard.headers, game_id, on_updates_checked)
+    
+    def on_settings_clicked(self, button):
+        from gui.dashboard_views.game_settings import GameSettingsWindow
+        settings_win = GameSettingsWindow(parent_window=self.dashboard.app.win, staging_path = self.dashboard.staging_path)
+        settings_win.present()
