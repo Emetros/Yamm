@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 from datetime import datetime
 from core.tools import show_message
+from gi.repository import GLib
 
 from core.tools import load_yaml, write_yaml
 
@@ -54,11 +55,10 @@ def deploy_mod_files(staging_dir: str, dest_dir: str, mod_name: str) -> bool:
             try:
                 # Hardlinks can be enabled from settings and work as long as steam games and mods 
                 # are on the same flatpak's virtual path and has rw permission
-                if staging_meta["settings"].get("enable_hardlinks"):
-                    print(staging_meta["settings"].get("enable_hardlinks"))
+                if staging_metadata["settings"].get("enable_hardlinks"):
+                    print(staging_metadata["settings"].get("enable_hardlinks"))
                     try:
                         os.link(source_item, link_item)
-                        print(f"Hardlink created")
                     except Exception:
                         print(f"Hard link could not be created, trying to create a symlink instead...")
                         try:
@@ -68,7 +68,6 @@ def deploy_mod_files(staging_dir: str, dest_dir: str, mod_name: str) -> bool:
                 # symlink
                 else:
                     os.symlink(source_item, link_item)
-                    print(f"Symlink created")
             except Exception as sym_e:
                 print(f"Error creating a Symlink {link_item}: {sym_e}")
                 success = False
