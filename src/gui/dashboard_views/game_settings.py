@@ -14,7 +14,7 @@ class GameSettingsWindow(Adw.Window):
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20, margin_top=24, margin_bottom=24, margin_start=24, margin_end=24)
         self.set_content(content)
         
-        general_group = Adw.PreferencesGroup(title=_("General Settings"))
+        general_group = Adw.PreferencesGroup(title=_(f"{self.dashboard.game} Settings"))
         content.append(general_group)
         
         # Hardlink
@@ -23,6 +23,12 @@ class GameSettingsWindow(Adw.Window):
         use_hardlink.set_active(load_yaml(staging_meta_path)["settings"].get('enable_hardlinks', False))
         use_hardlink.connect("notify::active", lambda row, pspec: toggle_setting(self, staging_meta_path, 'enable_hardlinks', row.get_active()))
         general_group.add(use_hardlink)
+        
+        content.append(Gtk.Separator(margin_top=10))
+        
+        save_btn = Gtk.Button(label=_("Close"), css_classes=["suggested-action"], margin_top=12)
+        save_btn.connect("clicked", lambda b: self.close_settings())
+        content.append(save_btn)
         
         def toggle_setting(self, staging_meta_path, key, state):
             # Get the staging metadata config then change the enable_hardlinks settings
