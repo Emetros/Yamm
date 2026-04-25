@@ -38,14 +38,16 @@ class GameSettingsWindow(Adw.Window):
             
         
     def close_settings(self):
-        deploy_all_ordered_mods (staging_dir, dest_dir)
-        staging_dir = self.staging_path
-        # get the mod deployment path
-        dest_dir = self.deployment_targets[0]["path"]
-        if mod_name in staging_metadata["mods"] and "deployment_target" in staging_metadata["mods"][mod_name]:
-            for target in self.dashboard.deployment_targets:
-                if target["name"] == staging_metadata["mods"][mod_name]["deployment_target"]:
-                    dest_dir = target["path"]
-                    break
+        # The code below will be used as a refresh links in the future but there's already a way to overcome this
+        # staging_dir = self.staging_path
+        # # get the mod deployment path
+        # dest_dir = self.deployment_targets[0]["path"]
+        # if mod_name in staging_metadata["mods"] and "deployment_target" in staging_metadata["mods"][mod_name]:
+        #     for target in self.dashboard.deployment_targets:
+        #         if target["name"] == staging_metadata["mods"][mod_name]["deployment_target"]:
+        #             dest_dir = target["path"]
+        #             break
+        # 
+        # deploy_all_ordered_mods (staging_dir, dest_dir)
         
         self.destroy()

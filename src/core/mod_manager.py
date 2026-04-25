@@ -56,7 +56,6 @@ def deploy_mod_files(staging_dir: str, dest_dir: str, mod_name: str) -> bool:
                 # Hardlinks can be enabled from settings and work as long as steam games and mods 
                 # are on the same flatpak's virtual path and has rw permission
                 if staging_metadata["settings"].get("enable_hardlinks"):
-                    print(staging_metadata["settings"].get("enable_hardlinks"))
                     try:
                         os.link(source_item, link_item)
                     except Exception:
@@ -186,6 +185,7 @@ def unlink_mod_files(staging_dir: str, dest_dir: str, mod_files: list[str]):
                 if os.path.samefile(source_item, link_item):
                     link_item.unlink()
             except Exception as e:
+                link_item.unlink()
                 print(f"Failed to unlink {link_item}: {e}")
 
         current_dir = link_item.parent
@@ -299,10 +299,10 @@ def toggle_mod_state(mod_name: str, mod_files: list, state: bool, staging_dir: s
     # state is true so the mod has to be installed/deployed
     if state:
         # deploy_mod_files return true if it worked, false if it doesn't
+        mod_info["status"] = "enabled"
+        mod_info["enabled_timestamp"] = datetime.now().strftime("%c")
+        write_yaml(staging_metadata, staging_meta_path)
         if check_for_conflicts(staging_meta_path):
-            mod_info["status"] = "enabled"
-            mod_info["enabled_timestamp"] = datetime.now().strftime("%c")
-            write_yaml(staging_metadata, staging_meta_path)
             success = deploy_all_ordered_mods(staging_dir, dest_dir)
         else:
             success = deploy_mod_files(staging_dir, dest_dir, mod_name)
